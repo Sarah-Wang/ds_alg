@@ -42,7 +42,7 @@ int sort_select(int *a, int size)
 
 int sort_insert(int *a, int size)
 {
-	int idx, i, j, k;
+	int i, j, k;
 	int tmp = 0;
 
 	if (!a)
@@ -67,13 +67,55 @@ int sort_insert(int *a, int size)
 	return 0;
 }
 
+static int insert_for_shell(int *a, int size, int idx, int gap)
+{
+	int i, j, k, tmp;
+
+	for (i = idx; i < size; i += gap) {
+		for (j = i - gap; j >= 0; j -= gap) {
+			if (a[j] <= a[i])
+				break;
+		}
+		tmp = a[i];
+		for (k = i; k > j + gap; k -= gap)
+			a[k] = a[k - gap];
+		a[j + gap] = tmp;
+	}
+	return 0;
+}
+
+//1. 时间复杂度：O(nlogn)
+//2. 空间复杂度：O(1)
+//3. 非稳定排序
+//4. 原地排序
+int sort_shell(int *a, int size)
+{
+	int i, j, k;
+	int gap;
+
+	if (!a)
+		return -1;
+	if (size == 1)
+		return 0;
+
+	for (gap = size / 2; gap > 0; gap /= 2) {
+		for (i = 0; i < gap; i++)
+			insert_for_shell(a, size, i + gap, gap);
+	}
+	printf("%s after sort:\n", __func__);
+	for (i = 0; i < size; i++)
+		printf(" %d ", a[i]);
+	printf("\n\n");
+	return 0;
+}
+
 //1、时间复杂度：O(n2)
 //2、空间复杂度：O(1)
 //3、稳定排序
 //4、原地排序
 int sort_bubble(int *a, int size)
 {
-	int idx, i, j, k;
+	int i, j, k;
 	int tmp = 0;
 
 	if (!a)
@@ -99,7 +141,7 @@ int sort_bubble(int *a, int size)
 
 int sort_bubble_optimize(int *a, int size)
 {
-	int idx, i, j, k;
+	int i, j, k;
 	int tmp, swap;
 
 	if (!a)
@@ -139,7 +181,7 @@ static void init_array(int *a, int size)
 	printf("before sort:\n");
 	for (i = 0; i < ARRAY_LENGTH; i++)
 		printf(" %d ", a[i]);
-	printf("\n\n");
+	printf("\n");
 }
 
 int main(void)
@@ -148,11 +190,18 @@ int main(void)
 	int i;
 
 	init_array(a, ARRAY_LENGTH);
-
 	sort_select(a, ARRAY_LENGTH);
+
+	init_array(a, ARRAY_LENGTH);
 	sort_insert(a, ARRAY_LENGTH);
-	sort_insert(a, ARRAY_LENGTH);
+
+	init_array(a, ARRAY_LENGTH);
+	sort_shell(a, ARRAY_LENGTH);
+
+	init_array(a, ARRAY_LENGTH);
 	sort_bubble(a, ARRAY_LENGTH);
+
+	init_array(a, ARRAY_LENGTH);
 	sort_bubble_optimize(a, ARRAY_LENGTH);
 
 	return 0;
