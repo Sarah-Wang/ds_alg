@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define ARRAY_LENGTH 10
+#define ARRAY_LENGTH 20
+//#define DEBUG
 
 //1、时间复杂度：O(n2)
 //2、空间复杂度：O(1)
@@ -169,6 +170,99 @@ int sort_bubble_optimize(int *a, int size)
 	return 0;
 }
 
+static int merge(int *a1, int l1, int *a2, int l2, int *b)
+{
+	int *p1 = a1, *p2 = a2;
+	int len = l1 + l2;
+	int i = 0, j = 0, k = 0;
+
+	while (i < l1 && j < l2) {
+		if (a1[i] < a2[j])
+			b[k++] = a1[i++];
+		else
+			b[k++] = a2[j++];
+	}
+	while (i < l1)
+		b[k++] = a1[i++];
+	while (j < l2)
+		b[k++] = a2[j++];
+
+#ifdef DEBUG
+	printf("a1:\n");
+	for (i = 0; i < l1; i++)
+		printf("%d ", a1[i]);
+	printf("\n");
+
+	printf("a2:\n");
+	for (i = 0; i < l2; i++)
+		printf("%d ", a2[i]);
+	printf("\n");
+
+	printf("b:\n");
+	for (i = 0; i < l1 + l2; i++)
+		printf("%d ", b[i]);
+	printf("\n");
+#endif
+	return 0;
+}
+
+static void test_merge(void)
+{
+	int a1[6] = {1, 3, 4, 5, 7, 10};
+	int a2[3] = {4, 6, 9};
+	int a3[9] = {0};
+
+	merge(a1, 6, a2, 3, a3);
+}
+
+static int __merge_sort(int *a, int len, int *b)
+{
+	int mid = len / 2;
+	int i;
+
+	if (len == 1)
+		return 0;
+
+	__merge_sort(a, mid, b);
+	__merge_sort(a + mid, len - mid, b);
+	merge(a, mid, a + mid, len - mid, b);
+	for (i = 0; i < len; i++)
+		a[i] = b[i];
+
+	return 0;
+}
+
+//1、时间复杂度：O(nlogn)
+//2、空间复杂度：O(n)
+//3、稳定排序
+//4、非原地排序
+static int sort_merge_recursive(int *a, int size)
+{
+	int i;
+	int *b = NULL;
+
+	b = calloc(1, sizeof(int) * size);
+	if (!b) {
+		printf("memory lack\n");
+		return -1;
+	}
+
+	__merge_sort(a, size, b);
+
+	free(b);
+	b = NULL;
+
+	printf("%s after sort:\n", __func__);
+	for (i = 0; i < size; i++)
+		printf(" %d ", a[i]);
+	printf("\n\n");
+	return 0;
+}
+
+static int sort_merge_non_recursive(int *a, int size)
+{
+
+}
 
 static void init_array(int *a, int size)
 {
@@ -179,7 +273,7 @@ static void init_array(int *a, int size)
 		a[i] = rand() % 100;
 
 	printf("before sort:\n");
-	for (i = 0; i < ARRAY_LENGTH; i++)
+	for (i = 0; i < size; i++)
 		printf(" %d ", a[i]);
 	printf("\n");
 }
@@ -204,5 +298,8 @@ int main(void)
 	init_array(a, ARRAY_LENGTH);
 	sort_bubble_optimize(a, ARRAY_LENGTH);
 
+	/* test_merge(); */
+	init_array(a, ARRAY_LENGTH);
+	sort_merge_recursive(a, ARRAY_LENGTH);
 	return 0;
 }
