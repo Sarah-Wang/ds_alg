@@ -264,6 +264,143 @@ static int sort_merge_non_recursive(int *a, int size)
 
 }
 
+static int __quick_end(int *a, int size)
+{
+	int i, j, tmp;
+
+	if (!a)
+		return -1;
+	if (size == 1)
+		return 0;
+
+	for (i = 0, j = 0; j < size; j++) {
+		if (a[j] < a[size - 1]) {
+			tmp = a[i];
+			a[i] = a[j];
+			a[j] = tmp;
+			i++;
+		}
+	}
+	tmp = a[i];
+	a[i] = a[size - 1];
+	a[size - 1] = tmp;
+	if (i > 0)
+		__quick_end(&a[0], i);
+	if (i + 1 < size)
+		__quick_end(&a[i + 1], size - i - 1);
+}
+
+static int __quick_start(int *a, int size)
+{
+	int i, j, tmp, istop, jstop;
+
+	if (!a)
+		return -1;
+	if (size == 1)
+		return 0;
+
+	istop = 0;
+	jstop = 0;
+	for (i = 0, j = size - 1; i <= j;) {
+		if (a[i] <= a[0])
+			i++;
+		else
+			istop = 1;
+
+		if (a[j] >= a[0])
+			j--;
+		else
+			jstop = 1;
+		if ((istop == 1) && (jstop == 1)) {
+			tmp = a[i];
+			a[i] = a[j];
+			a[j] = tmp;
+			i++;
+			j--;
+			istop = 0;
+			jstop = 0;
+		}
+	}
+
+	tmp = a[j];
+	a[j] = a[0];
+	a[0] = tmp;
+	if (j > 0)
+		__quick_start(&a[0], j);
+	if (j + 1 < size)
+		__quick_start(&a[j + 1], size - j - 1);
+}
+
+/* //not correct */
+/* static int __quick_rand(int *a, int size) */
+/* { */
+/* 	int i, j, tmp, istop, jstop; */
+/* 	int k, base; */
+
+
+/* 	if (!a) */
+/* 		return -1; */
+/* 	if (size == 1) */
+/* 		return 0; */
+
+/* 	/1* srand(time(NULL)); *1/ */
+/* 	k = rand() % size; */
+/* 	base = a[k]; */
+/* 	printf("k: %d\n", k); */
+
+/* 	istop = 0; */
+/* 	jstop = 0; */
+/* 	for (i = 0, j = size - 1; i <= j;) { */
+/* 		if (a[i] <= base) */
+/* 			i++; */
+/* 		else */
+/* 			istop = 1; */
+
+/* 		if (a[j] >= base) */
+/* 			j--; */
+/* 		else */
+/* 			jstop = 1; */
+/* 		if ((istop == 1) && (jstop == 1)) { */
+/* 			tmp = a[i]; */
+/* 			a[i] = a[j]; */
+/* 			a[j] = tmp; */
+/* 			i++; */
+/* 			j--; */
+/* 			istop = 0; */
+/* 			jstop = 0; */
+/* 		} */
+/* 	} */
+
+/* 	tmp = a[j]; */
+/* 	a[j] = base; */
+/* 	a[k] = tmp; */
+/* 	if (j > 0) */
+/* 		__quick_rand(&a[0], j); */
+/* 	if (j + 1 < size) */
+/* 		__quick_rand(&a[j + 1], size - j - 1); */
+/* } */
+
+
+/* 1、时间复杂度：O(nlogn) */
+/* 2、空间复杂度：O(logn) */
+/* 3、非稳定排序 */
+/* 4、原地排序 */
+static int sort_quick(int *a, int size)
+{
+	int i;
+
+	/* __quick_end(a, size); */
+	__quick_start(a, size);
+	/* __quick_rand(a, size); */
+
+	printf("%s after sort:\n", __func__);
+	for (i = 0; i < size; i++)
+		printf(" %d ", a[i]);
+	printf("\n\n");
+	return 0;
+}
+
+
 static void init_array(int *a, int size)
 {
 	int i;
@@ -301,5 +438,9 @@ int main(void)
 	/* test_merge(); */
 	init_array(a, ARRAY_LENGTH);
 	sort_merge_recursive(a, ARRAY_LENGTH);
+
+	init_array(a, ARRAY_LENGTH);
+	sort_quick(a, ARRAY_LENGTH);
+
 	return 0;
 }
